@@ -12,4 +12,4 @@ You can be good as Logic physics
 and more
 
 ### But...
-Ít not a tool
+It not a tool
