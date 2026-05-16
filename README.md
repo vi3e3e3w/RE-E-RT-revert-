@@ -7,7 +7,7 @@ Want me make my repo by my hand, go to python-bros
 
 ### Does it have for gaming and teach what?
 Yes sir! and teach a lot
-This teach some people how to exchange the bit so you can have a success in computer engineering 
+This teach some people how to convert the binary so you can have a success in computer engineering 
 You can be good as Logic physics
 and more
 
