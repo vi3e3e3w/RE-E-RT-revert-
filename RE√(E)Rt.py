@@ -215,7 +215,7 @@ while True:
     print("""=========================================================
                         RE√(E)Rt
              Convert the binary is never boring                          
- alpha0.0.1 ==============================================""")
+ alpha0.0.5 ==============================================""")
     print()
 
     print("[1] PLAY GAME")
@@ -284,7 +284,7 @@ while True:
             else:
 
                 print()
-                print("UNKNOWN OPTION ☠️")
+                print("Unknown error:404")
                 time.sleep(1)
 
     # =====================================
@@ -340,13 +340,13 @@ while True:
 
         clear()
 
-        print("Shutting down RE√(E)Rt...")
+        print("shutting down RE√(E)Rt...")
         time.sleep(1)
 
-        print("Saving memory...")
+        print("saving memory...")
         time.sleep(1)
 
-        print("Session terminated.")
+        print("return to terminal")
         time.sleep(1)
 
         break
@@ -358,5 +358,5 @@ while True:
     else:
 
         print()
-        print("UH... Is look like your command doesn't exist")
+        print("404")
         time.sleep(2.3)
