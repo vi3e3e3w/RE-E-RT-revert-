@@ -1,6 +1,10 @@
 import random
 import time
 import os
+import json
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SPEEDRUN_FILE = os.path.join(BASE_DIR, "speedrun_records.json")
 
 ROUNDS = 10
 
@@ -11,6 +15,59 @@ MODE = {
     "Hard": 8,
     "Extremely difficult": 9
 }
+
+# =====================================
+# SPEEDRUN SYSTEM
+# =====================================
+
+def load_speedrun_records():
+
+    try:
+        with open(SPEEDRUN_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+    if not isinstance(data, dict):
+        return {}
+
+    return data
+
+
+def save_speedrun_records(records):
+
+    with open(SPEEDRUN_FILE, "w", encoding="utf-8") as file:
+        json.dump(records, file, indent=2)
+
+
+def format_time(seconds):
+
+    minutes = int(seconds // 60)
+    remaining = seconds - (minutes * 60)
+
+    return f"{minutes:02d}:{remaining:05.2f}"
+
+
+def update_speedrun_record(diff_name, elapsed, percent, full_combo):
+
+    records = load_speedrun_records()
+    current = records.get(diff_name)
+
+    new_record = (
+        current is None
+        or elapsed < current.get("time", float("inf"))
+    )
+
+    if new_record:
+        records[diff_name] = {
+            "time": elapsed,
+            "percent": percent,
+            "full_combo": full_combo
+        }
+        save_speedrun_records(records)
+
+    return new_record, records.get(diff_name)
 
 # =====================================
 # CLEAR SCREEN
@@ -69,6 +126,7 @@ def play_game(diff_name):
 
     progress = "0000000000"
     round_scores = []
+    started_at = time.perf_counter()
 
     for round_num in range(1, ROUNDS + 1):
 
@@ -167,6 +225,8 @@ def play_game(diff_name):
     full_combo = score == MAX_SCORE
 
     rank = grade(percent, full_combo)
+    elapsed = time.perf_counter() - started_at
+    new_record, best_record = update_speedrun_record(diff_name, elapsed, percent, full_combo)
 
     print("======================================")
     print("       RE√(E)Rt COMPLETE")
@@ -179,9 +239,23 @@ def play_game(diff_name):
     print("TOTAL SCORE :", score, "/", MAX_SCORE)
     print(f"PERCENT     : {percent:.1f}%")
     print(f"FORMULA     : {formula_score:.1f}")
+    print(f"TIME        : {format_time(elapsed)}")
+
+    if best_record:
+        print(f"BEST TIME   : {format_time(best_record['time'])}")
 
     print()
     print("RANK:", rank)
+    print()
+
+    if new_record:
+
+        print("SPEEDRUN: NEW PERSONAL BEST")
+
+    else:
+
+        print("SPEEDRUN: PB UNCHANGED")
+
     print()
 
     if full_combo:
@@ -220,7 +294,8 @@ while True:
 
     print("[1] PLAY GAME")
     print("[2] HTP")
-    print("[3] EXIT")
+    print("[3] SPEEDRUN RECORDS")
+    print("[4] EXIT")
 
     print()
 
@@ -333,10 +408,47 @@ while True:
         input("Press Enter to return...")
 
     # =====================================
-    # EXIT
+    # SPEEDRUN RECORDS
     # =====================================
 
     elif choice == "3":
+
+        clear()
+
+        print("======================================")
+        print("          SPEEDRUN RECORDS")
+        print("======================================")
+        print()
+
+        records = load_speedrun_records()
+
+        if not records:
+
+            print("No records yet.")
+
+        else:
+
+            for diff_name in MODE:
+
+                record = records.get(diff_name)
+
+                if record:
+
+                    label = "FC" if record.get("full_combo") else f"{record.get('percent', 0):.1f}%"
+                    print(f"{diff_name:<21} {format_time(record['time'])}  {label}")
+
+                else:
+
+                    print(f"{diff_name:<21} --:--.--")
+
+        print()
+        input("Press Enter to return...")
+
+    # =====================================
+    # EXIT
+    # =====================================
+
+    elif choice == "4":
 
         clear()
 
