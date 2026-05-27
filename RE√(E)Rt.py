@@ -2,6 +2,7 @@ import random
 import time
 import os
 import json
+import subprocess
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SPEEDRUN_FILE = os.path.join(BASE_DIR, "speedrun_records.json")
@@ -74,7 +75,55 @@ def update_speedrun_record(diff_name, elapsed, percent, full_combo):
 # =====================================
 
 def clear():
-    os.system("cls" if os.name == "nt" else "clear")
+    command = "cls" if os.name == "nt" else "clear"
+    subprocess.run([command], check=False)
+
+# =====================================
+# INTRO
+# =====================================
+
+def intro():
+
+    frames = [
+        "00010011",
+        "11101100",
+        "v1001011",
+        "v0110100",
+        "vi001101",
+        "vi110010",
+        "vi301001",
+        "vi3e1011",
+        "vi3e1001",
+        "vi3e3001",
+        "vi3e3110",
+        "vi3e3e31",
+        "vi3e3e30",
+        "vi3e3e3w",
+        "vi3e3e3w",
+        "vi3e3e3w G",
+        "vi3e3e3w GA",
+        "vi3e3e3w GAM",
+        "vi3e3e3w GAME",
+        "vi3e3e3w GAME",
+    ]
+
+    try:
+        width = os.get_terminal_size().columns
+    except OSError:
+        width = 80
+
+    width = max(width, len(frames[-1]) + 4)
+    padding = max(0, (width - len(frames[-1])) // 2)
+
+    for frame in frames:
+
+        clear()
+        print()
+        print(" " * padding + frame)
+        time.sleep(0.12)
+
+    time.sleep(3.35)
+    clear()
 
 # =====================================
 # INVERT BINARY
@@ -112,8 +161,11 @@ def grade(percent, full_combo):
     elif percent >= 50:
         return "C"
 
-    else:
+    elif percent > 0:
         return "D"
+
+    else:
+        return "F"
 
 # =====================================
 # GAME
@@ -260,19 +312,19 @@ def play_game(diff_name):
 
     if full_combo:
 
-        print("STATUS: FULL CLEAR ☠️")
+        print("STATUS: FULL CLEAR ")
 
     elif percent >= 75:
 
-        print("STATUS: CASIO GOD 😈")
+        print("STATUS: CASIO GOD ")
 
     elif percent >= 50:
 
-        print("STATUS: TERMINAL USER 😏")
+        print("STATUS: TERMINAL USER ")
 
     else:
 
-        print("STATUS: HUMAN ERROR ☠️")
+        print("STATUS: HUMAN ERROR ")
 
     print()
 
@@ -282,6 +334,20 @@ def play_game(diff_name):
 # MAIN MENU
 # =====================================
 
+clear()
+
+print("""=========================================================
+                        WARNING!
+        This game is still a alpha version, 
+        expect some bugs and crashes.
+        Please report any issues to the developer.
+=========================================================""")
+print()
+
+input("Press Enter to continue ...")
+
+intro()
+
 while True:
 
     clear()
@@ -289,7 +355,7 @@ while True:
     print("""=========================================================
                         RE√(E)Rt
              Convert the binary is never boring                          
- alpha0.0.5 ==============================================""")
+ alpha0.0.5 =============================================""")
     print()
 
     print("[1] PLAY GAME")
@@ -401,7 +467,8 @@ while True:
         print("A  = 75%+")
         print("B  = 65%+")
         print("C  = 50%+")
-        print("D  = BELOW 50%")
+        print("D  = 1% -49.9%")
+        print("F  = 0%")
 
         print()
 
