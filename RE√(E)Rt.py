@@ -105,6 +105,12 @@ def intro():
         "vi3e3e3w GAM",
         "vi3e3e3w GAME",
         "vi3e3e3w GAME",
+        ""
+        "Made By (odex",
+        "Made by codex",
+        "Made By (odex",
+        "Made By codex",
+        "Made By Codex (AI)",
     ]
 
     try:
@@ -355,7 +361,7 @@ while True:
     print("""=========================================================
                         RE√(E)Rt
              Convert the binary is never boring                          
- alpha0.0.5 =============================================""")
+ alpha 0.1.0 =============================================""")
     print()
 
     print("[1] PLAY GAME")
