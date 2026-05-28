@@ -183,25 +183,40 @@ def grade(percent, full_combo):
 # GAME
 # =====================================
 
-def play_game(diff_name):
+def ask_number(prompt, minimum, maximum):
 
-    BIT_LENGTH = MODE[diff_name]
-    MAX_SCORE = BIT_LENGTH * ROUNDS
+    while True:
 
-    progress = "0000000000"
+        try:
+            value = int(input(prompt))
+        except ValueError:
+            print(f"Enter a number from {minimum} to {maximum}.")
+            continue
+
+        if minimum <= value <= maximum:
+            return value
+
+        print(f"Enter a number from {minimum} to {maximum}.")
+
+
+def play_session(session_name, bit_length, rounds, save_records):
+
+    max_score = bit_length * rounds
+
+    progress = "0" * rounds
     round_scores = []
     mistake_review = []
     current_streak = 0
     max_streak = 0
     started_at = time.perf_counter()
 
-    for round_num in range(1, ROUNDS + 1):
+    for round_num in range(1, rounds + 1):
 
         clear()
 
         binary = ""
 
-        for _ in range(BIT_LENGTH):
+        for _ in range(bit_length):
             binary += random.choice("01")
 
         answer = invert_bits(binary)
@@ -215,8 +230,8 @@ def play_game(diff_name):
 
         # dashboard
         print("------------------------------------------------")
-        print(f"ROUND({round_num}/{ROUNDS})   |  {display_progress}")
-        print(f"DIFF: {diff_name}")
+        print(f"ROUND({round_num}/{rounds})   |  {display_progress}")
+        print(f"MODE: {session_name}")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print()
 
@@ -227,11 +242,11 @@ def play_game(diff_name):
 
             user = input("+++      ").strip()
 
-            if len(user) == BIT_LENGTH and all(bit in "01" for bit in user):
+            if len(user) == bit_length and all(bit in "01" for bit in user):
                 break
 
             print()
-            print(f"INVALID INPUT: enter exactly {BIT_LENGTH} bits using only 0 and 1.")
+            print(f"INVALID INPUT: enter exactly {bit_length} bits using only 0 and 1.")
             print()
 
         print()
@@ -239,7 +254,7 @@ def play_game(diff_name):
         check_line = ""
         correct_count = 0
 
-        for i in range(BIT_LENGTH):
+        for i in range(bit_length):
 
             if i < len(user) and user[i] == answer[i]:
 
@@ -255,7 +270,7 @@ def play_game(diff_name):
         round_scores.append(correct_count)
 
         # update progress
-        if correct_count == BIT_LENGTH:
+        if correct_count == bit_length:
             current_streak += 1
             max_streak = max(max_streak, current_streak)
 
@@ -300,7 +315,7 @@ def play_game(diff_name):
     if len(round_scores) > 0:
 
         formula_score = (
-            ROUNDS
+            rounds
             * ((round_scores[0] + round_scores[-1]) / 2)
         )
 
@@ -308,13 +323,17 @@ def play_game(diff_name):
 
         formula_score = 0
 
-    percent = (score / MAX_SCORE) * 100
+    percent = (score / max_score) * 100
 
-    full_combo = score == MAX_SCORE
+    full_combo = score == max_score
 
     rank = grade(percent, full_combo)
     elapsed = time.perf_counter() - started_at
-    new_record, best_record, top_records = update_speedrun_record(diff_name, elapsed, percent, full_combo)
+
+    if save_records:
+        new_record, best_record, top_records = update_speedrun_record(session_name, elapsed, percent, full_combo)
+    else:
+        new_record, best_record, top_records = False, None, []
 
     print("======================================")
     print("       RE√(E)Rt COMPLETE")
@@ -324,7 +343,7 @@ def play_game(diff_name):
     print("PROGRESS :", progress + "x")
     print()
 
-    print("TOTAL SCORE :", score, "/", MAX_SCORE)
+    print("TOTAL SCORE :", score, "/", max_score)
     print(f"PERCENT     : {percent:.1f}%")
     print(f"FORMULA     : {formula_score:.1f}")
     print(f"TIME        : {format_time(elapsed)}")
@@ -337,13 +356,17 @@ def play_game(diff_name):
     print("RANK:", rank)
     print()
 
-    if new_record:
+    if save_records and new_record:
 
         print("SPEEDRUN: NEW PERSONAL BEST")
 
-    else:
+    elif save_records:
 
         print("SPEEDRUN: PB UNCHANGED")
+
+    else:
+
+        print("PRACTICE: RECORD NOT SAVED")
 
     print()
 
@@ -357,19 +380,22 @@ def play_game(diff_name):
                 f"R{mistake['round']:02d}: "
                 f"{mistake['binary']} -> {mistake['answer']} | "
                 f"YOU: {mistake['input']} | "
-                f"{mistake['score']}/{BIT_LENGTH}"
+                f"{mistake['score']}/{bit_length}"
             )
 
         print()
 
-    print("TOP 5:")
+    if save_records:
 
-    for index, record in enumerate(top_records, start=1):
+        print("TOP 5:")
 
-        label = "FC" if record.get("full_combo") else f"{record.get('percent', 0):.1f}%"
-        print(f"{index}. {format_time(record['time'])}  {label}")
+        for index, record in enumerate(top_records, start=1):
 
-    print()
+            label = "FC" if record.get("full_combo") else f"{record.get('percent', 0):.1f}%"
+            print(f"{index}. {format_time(record['time'])}  {label}")
+
+        print()
+
 
     if full_combo:
 
@@ -390,6 +416,26 @@ def play_game(diff_name):
     print()
 
     input("Press Enter to return...")
+
+
+def play_game(diff_name):
+
+    play_session(diff_name, MODE[diff_name], ROUNDS, True)
+
+
+def practice_mode():
+
+    clear()
+
+    print("======================================")
+    print("            PRACTICE MODE")
+    print("======================================")
+    print()
+
+    bit_length = ask_number("BIT LENGTH (3-16) > ", 3, 16)
+    rounds = ask_number("ROUNDS (1-20) > ", 1, 20)
+
+    play_session("Practice", bit_length, rounds, False)
 
 # =====================================
 # MAIN MENU
@@ -422,7 +468,8 @@ while True:
     print("[1] PLAY GAME")
     print("[2] HTP")
     print("[3] SPEEDRUN RECORDS")
-    print("[4] EXIT")
+    print("[4] PRACTICE MODE")
+    print("[5] EXIT")
 
     print()
 
@@ -524,6 +571,7 @@ while True:
         print()
 
         print("Invalid input is not counted.")
+        print("Practice mode lets you choose bit length and rounds.")
         print("Speedrun records keep local top 5 per difficulty.")
         print()
 
@@ -586,10 +634,18 @@ while True:
         input("Press Enter to return...")
 
     # =====================================
-    # EXIT
+    # PRACTICE MODE
     # =====================================
 
     elif choice == "4":
+
+        practice_mode()
+
+    # =====================================
+    # EXIT
+    # =====================================
+
+    elif choice == "5":
 
         clear()
 
