@@ -53,22 +53,28 @@ def format_time(seconds):
 def update_speedrun_record(diff_name, elapsed, percent, full_combo):
 
     records = load_speedrun_records()
-    current = records.get(diff_name)
+    entries = records.get(diff_name, [])
 
-    new_record = (
-        current is None
-        or elapsed < current.get("time", float("inf"))
-    )
+    if isinstance(entries, dict):
+        entries = [entries]
 
-    if new_record:
-        records[diff_name] = {
-            "time": elapsed,
-            "percent": percent,
-            "full_combo": full_combo
-        }
-        save_speedrun_records(records)
+    entries.sort(key=lambda record: record.get("time", float("inf")))
+    previous_best = entries[0] if entries else None
 
-    return new_record, records.get(diff_name)
+    entry = {
+        "time": elapsed,
+        "percent": percent,
+        "full_combo": full_combo
+    }
+
+    entries.append(entry)
+    entries.sort(key=lambda record: record.get("time", float("inf")))
+    records[diff_name] = entries[:5]
+    save_speedrun_records(records)
+
+    new_record = previous_best is None or elapsed < previous_best.get("time", float("inf"))
+
+    return new_record, records[diff_name][0], records[diff_name]
 
 # =====================================
 # CLEAR SCREEN
@@ -184,6 +190,9 @@ def play_game(diff_name):
 
     progress = "0000000000"
     round_scores = []
+    mistake_review = []
+    current_streak = 0
+    max_streak = 0
     started_at = time.perf_counter()
 
     for round_num in range(1, ROUNDS + 1):
@@ -214,7 +223,16 @@ def play_game(diff_name):
         print("----     " + binary + "     ---")
         print()
 
-        user = input("+++      ")
+        while True:
+
+            user = input("+++      ").strip()
+
+            if len(user) == BIT_LENGTH and all(bit in "01" for bit in user):
+                break
+
+            print()
+            print(f"INVALID INPUT: enter exactly {BIT_LENGTH} bits using only 0 and 1.")
+            print()
 
         print()
 
@@ -238,6 +256,8 @@ def play_game(diff_name):
 
         # update progress
         if correct_count == BIT_LENGTH:
+            current_streak += 1
+            max_streak = max(max_streak, current_streak)
 
             progress = (
                 progress[:round_num - 1]
@@ -246,6 +266,14 @@ def play_game(diff_name):
             )
 
         else:
+            current_streak = 0
+            mistake_review.append({
+                "round": round_num,
+                "binary": binary,
+                "input": user,
+                "answer": answer,
+                "score": correct_count
+            })
 
             progress = (
                 progress[:round_num - 1]
@@ -256,6 +284,7 @@ def play_game(diff_name):
         print()
         print("CORRECT:", answer)
         print("BIT SCORE:", correct_count)
+        print("STREAK:", current_streak)
 
         time.sleep(2)
 
@@ -285,7 +314,7 @@ def play_game(diff_name):
 
     rank = grade(percent, full_combo)
     elapsed = time.perf_counter() - started_at
-    new_record, best_record = update_speedrun_record(diff_name, elapsed, percent, full_combo)
+    new_record, best_record, top_records = update_speedrun_record(diff_name, elapsed, percent, full_combo)
 
     print("======================================")
     print("       RE√(E)Rt COMPLETE")
@@ -299,6 +328,7 @@ def play_game(diff_name):
     print(f"PERCENT     : {percent:.1f}%")
     print(f"FORMULA     : {formula_score:.1f}")
     print(f"TIME        : {format_time(elapsed)}")
+    print(f"MAX STREAK  : {max_streak}")
 
     if best_record:
         print(f"BEST TIME   : {format_time(best_record['time'])}")
@@ -314,6 +344,30 @@ def play_game(diff_name):
     else:
 
         print("SPEEDRUN: PB UNCHANGED")
+
+    print()
+
+    if mistake_review:
+
+        print("MISTAKE REVIEW:")
+
+        for mistake in mistake_review:
+
+            print(
+                f"R{mistake['round']:02d}: "
+                f"{mistake['binary']} -> {mistake['answer']} | "
+                f"YOU: {mistake['input']} | "
+                f"{mistake['score']}/{BIT_LENGTH}"
+            )
+
+        print()
+
+    print("TOP 5:")
+
+    for index, record in enumerate(top_records, start=1):
+
+        label = "FC" if record.get("full_combo") else f"{record.get('percent', 0):.1f}%"
+        print(f"{index}. {format_time(record['time'])}  {label}")
 
     print()
 
@@ -362,7 +416,7 @@ while True:
     print("""=========================================================
                         RE√(E)Rt
              Convert the binary is never boring                          
- alpha 0.1.0 =============================================""")
+ alpha 0.1.1 =============================================""")
     print()
 
     print("[1] PLAY GAME")
@@ -469,12 +523,16 @@ while True:
 
         print()
 
+        print("Invalid input is not counted.")
+        print("Speedrun records keep local top 5 per difficulty.")
+        print()
+
         print("RANK SYSTEM:")
         print("A+ = FULL COMBO")
         print("A  = 75%+")
         print("B  = 65%+")
         print("C  = 50%+")
-        print("D  = 1% -49.9%")
+        print("D  = 1% - 49.9%")
         print("F  = 0%")
 
         print()
@@ -504,16 +562,25 @@ while True:
 
             for diff_name in MODE:
 
-                record = records.get(diff_name)
+                entries = records.get(diff_name, [])
 
-                if record:
+                if isinstance(entries, dict):
+                    entries = [entries]
 
-                    label = "FC" if record.get("full_combo") else f"{record.get('percent', 0):.1f}%"
-                    print(f"{diff_name:<21} {format_time(record['time'])}  {label}")
+                print(diff_name)
+
+                if entries:
+
+                    for index, record in enumerate(entries[:5], start=1):
+
+                        label = "FC" if record.get("full_combo") else f"{record.get('percent', 0):.1f}%"
+                        print(f"  {index}. {format_time(record['time'])}  {label}")
 
                 else:
 
-                    print(f"{diff_name:<21} --:--.--")
+                    print("  --:--.--")
+
+                print()
 
         print()
         input("Press Enter to return...")
