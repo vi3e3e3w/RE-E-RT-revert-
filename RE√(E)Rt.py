@@ -7,6 +7,7 @@ import subprocess
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SPEEDRUN_FILE = os.path.join(BASE_DIR, "speedrun_records.json")
 
+VERSION = "alpha 0.1.3"
 ROUNDS = 10
 
 MODE = {
@@ -83,6 +84,25 @@ def update_speedrun_record(diff_name, elapsed, percent, full_combo):
 def clear():
     command = "cls" if os.name == "nt" else "clear"
     subprocess.run([command], check=False)
+
+
+def wait_return():
+
+    input("Press Enter to return...")
+
+
+def goodbye():
+
+    clear()
+
+    print("shutting down RE√(E)Rt...")
+    time.sleep(1)
+
+    print("saving memory...")
+    time.sleep(1)
+
+    print("return to terminal")
+    time.sleep(1)
 
 # =====================================
 # INTRO
@@ -440,235 +460,265 @@ def practice_mode():
 
     play_session("Practice", bit_length, rounds, False)
 
+
+def about_screen():
+
+    clear()
+
+    print("======================================")
+    print("                ABOUT")
+    print("======================================")
+    print()
+
+    print("RE√(E)Rt")
+    print(f"Version: {VERSION}")
+    print()
+
+    print("A terminal game about flipping binary bits.")
+    print("The goal is simple: convert every 0 to 1 and every 1 to 0.")
+    print()
+
+    print("Made as a learning project.")
+    print("Still alpha, so expect rough edges.")
+    print()
+
+    wait_return()
+
 # =====================================
 # MAIN MENU
 # =====================================
 
-clear()
-
-print("""=========================================================
-                        WARNING!
-        This game is still a alpha version, 
-        expect some bugs and crashes.
-        Please report any issues to the developer.
-=========================================================""")
-print()
-
-input("Press Enter to continue ...")
-
-intro()
-
-while True:
+try:
 
     clear()
 
     print("""=========================================================
+                        WARNING!
+        This game is still an alpha version.
+        Expect some bugs and crashes.
+        Please report any issues to the developer.
+=========================================================""")
+    print()
+
+    input("Press Enter to continue ...")
+
+    intro()
+
+    while True:
+
+        clear()
+
+        print(f"""=========================================================
                         RE√(E)Rt
              Convert the binary is never boring                          
- alpha 0.1.2 =============================================""")
-    print()
+ {VERSION} =============================================""")
+        print()
 
-    print("[1] PLAY GAME")
-    print("[2] HTP")
-    print("[3] SPEEDRUN RECORDS")
-    print("[4] PRACTICE MODE")
-    print("[5] EXIT")
+        print("[1] PLAY GAME")
+        print("[2] HTP")
+        print("[3] SPEEDRUN RECORDS")
+        print("[4] PRACTICE MODE")
+        print("[5] ABOUT")
+        print("[6] EXIT")
 
-    print()
+        print()
 
-    choice = input("SELECT > ")
+        choice = input("SELECT > ")
 
-    # =====================================
-    # PLAY
-    # =====================================
+        # =====================================
+        # PLAY
+        # =====================================
 
-    if choice == "1":
+        if choice == "1":
 
-        while True:
+            while True:
+
+                clear()
+
+                print("======================================")
+                print("          SELECT DIFFICULTY")
+                print("======================================")
+                print()
+
+                print("[1] EASY")
+                print("[2] MED")
+                print("[3] LESS HARD")
+                print("[4] HARD")
+                print("[5] EXTREMELY DIFFICULT")
+                print("[6] BACK")
+
+                print()
+
+                diff = input("SELECT > ")
+
+                if diff == "1":
+
+                    play_game("Easy")
+                    break
+
+                elif diff == "2":
+
+                    play_game("Med")
+                    break
+
+                elif diff == "3":
+
+                    play_game("Less hard")
+                    break
+
+                elif diff == "4":
+
+                    play_game("Hard")
+                    break
+
+                elif diff == "5":
+
+                    play_game("Extremely difficult")
+                    break
+
+                elif diff == "6":
+
+                    break
+
+                else:
+
+                    print()
+                    print("Unknown error:404")
+                    time.sleep(1)
+
+        # =====================================
+        # HOW TO PLAY
+        # =====================================
+
+        elif choice == "2":
 
             clear()
 
             print("======================================")
-            print("          SELECT DIFFICULTY")
+            print("             HOW TO PLAY")
             print("======================================")
             print()
 
-            print("[1] EASY")
-            print("[2] MED")
-            print("[3] LESS HARD")
-            print("[4] HARD")
-            print("[5] EXTREMELY DIFFICULT")
-            print("[6] BACK")
+            print("Convert all bits to opposite form.")
+            print()
+
+            print("0 -> 1")
+            print("1 -> 0")
 
             print()
 
-            diff = input("SELECT > ")
+            print("EXAMPLE:")
+            print()
 
-            if diff == "1":
+            print("101001")
+            print("010110")
 
-                play_game("Easy")
-                break
+            print()
 
-            elif diff == "2":
+            print("C = FULL CLEAR")
+            print("x = CURRENT ROUND")
 
-                play_game("Med")
-                break
+            print()
 
-            elif diff == "3":
+            print("Invalid input is not counted.")
+            print("Practice mode lets you choose bit length and rounds.")
+            print("Speedrun records keep local top 5 per difficulty.")
+            print()
 
-                play_game("Less hard")
-                break
+            print("RANK SYSTEM:")
+            print("A+ = FULL COMBO")
+            print("A  = 75%+")
+            print("B  = 65%+")
+            print("C  = 50%+")
+            print("D  = 1% - 49.9%")
+            print("F  = 0%")
 
-            elif diff == "4":
+            print()
 
-                play_game("Hard")
-                break
+            wait_return()
 
-            elif diff == "5":
+        # =====================================
+        # SPEEDRUN RECORDS
+        # =====================================
 
-                play_game("Extremely difficult")
-                break
+        elif choice == "3":
 
-            elif diff == "6":
+            clear()
 
-                break
+            print("======================================")
+            print("          SPEEDRUN RECORDS")
+            print("======================================")
+            print()
+
+            records = load_speedrun_records()
+
+            if not records:
+
+                print("No records yet.")
 
             else:
 
-                print()
-                print("Unknown error:404")
-                time.sleep(1)
+                for diff_name in MODE:
 
-    # =====================================
-    # HOW TO PLAY
-    # =====================================
+                    entries = records.get(diff_name, [])
 
-    elif choice == "2":
+                    if isinstance(entries, dict):
+                        entries = [entries]
 
-        clear()
+                    print(diff_name)
 
-        print("======================================")
-        print("             HOW TO PLAY")
-        print("======================================")
-        print()
+                    if entries:
 
-        print("Convert all bits to opposite form.")
-        print()
+                        for index, record in enumerate(entries[:5], start=1):
 
-        print("0 -> 1")
-        print("1 -> 0")
+                            label = "FC" if record.get("full_combo") else f"{record.get('percent', 0):.1f}%"
+                            print(f"  {index}. {format_time(record['time'])}  {label}")
 
-        print()
+                    else:
 
-        print("EXAMPLE:")
-        print()
+                        print("  --:--.--")
 
-        print("101001")
-        print("010110")
+                    print()
 
-        print()
+            print()
+            wait_return()
 
-        print("C = FULL CLEAR")
-        print("x = CURRENT ROUND")
+        # =====================================
+        # PRACTICE MODE
+        # =====================================
 
-        print()
+        elif choice == "4":
 
-        print("Invalid input is not counted.")
-        print("Practice mode lets you choose bit length and rounds.")
-        print("Speedrun records keep local top 5 per difficulty.")
-        print()
+            practice_mode()
 
-        print("RANK SYSTEM:")
-        print("A+ = FULL COMBO")
-        print("A  = 75%+")
-        print("B  = 65%+")
-        print("C  = 50%+")
-        print("D  = 1% - 49.9%")
-        print("F  = 0%")
+        # =====================================
+        # ABOUT
+        # =====================================
 
-        print()
+        elif choice == "5":
 
-        input("Press Enter to return...")
+            about_screen()
 
-    # =====================================
-    # SPEEDRUN RECORDS
-    # =====================================
+        # =====================================
+        # EXIT
+        # =====================================
 
-    elif choice == "3":
+        elif choice == "6":
 
-        clear()
+            goodbye()
+            break
 
-        print("======================================")
-        print("          SPEEDRUN RECORDS")
-        print("======================================")
-        print()
-
-        records = load_speedrun_records()
-
-        if not records:
-
-            print("No records yet.")
+        # =====================================
+        # INVALID
+        # =====================================
 
         else:
 
-            for diff_name in MODE:
+            print()
+            print("404")
+            time.sleep(2.3)
 
-                entries = records.get(diff_name, [])
+except KeyboardInterrupt:
 
-                if isinstance(entries, dict):
-                    entries = [entries]
-
-                print(diff_name)
-
-                if entries:
-
-                    for index, record in enumerate(entries[:5], start=1):
-
-                        label = "FC" if record.get("full_combo") else f"{record.get('percent', 0):.1f}%"
-                        print(f"  {index}. {format_time(record['time'])}  {label}")
-
-                else:
-
-                    print("  --:--.--")
-
-                print()
-
-        print()
-        input("Press Enter to return...")
-
-    # =====================================
-    # PRACTICE MODE
-    # =====================================
-
-    elif choice == "4":
-
-        practice_mode()
-
-    # =====================================
-    # EXIT
-    # =====================================
-
-    elif choice == "5":
-
-        clear()
-
-        print("shutting down RE√(E)Rt...")
-        time.sleep(1)
-
-        print("saving memory...")
-        time.sleep(1)
-
-        print("return to terminal")
-        time.sleep(1)
-
-        break
-
-    # =====================================
-    # INVALID
-    # =====================================
-
-    else:
-
-        print()
-        print("404")
-        time.sleep(2.3)
+    print()
+    goodbye()

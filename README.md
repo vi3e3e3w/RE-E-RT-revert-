@@ -1,15 +1,46 @@
 # RE√(E)Rt
-Enter the binary exchange 0 and 1 by a student who playing with his friend's Casio and think that gameplay 
 
-### Warning 
-Don't yelling at me cause is just a alpha release and all is by ChatGPT 
-Want me make my repo by my hand, go to python-bros
+RE√(E)Rt is a small terminal game about binary inversion.
 
-### Does it have for gaming and teach what?
-Yes sir! and teach a lot
-This teach some people how to convert the binary so you can have a success in computer engineering 
-You can be good as Logic physics
-and more
+The rule is simple:
 
-### But...
-It not a tool
+```text
+0 -> 1
+1 -> 0
+```
+
+Example:
+
+```text
+101001
+010110
+```
+
+## Version
+
+alpha 0.1.3
+
+## Features
+
+- Single player binary inversion game
+- Difficulty modes
+- Practice mode with custom bit length and round count
+- Local speedrun records
+- Mistake review after each run
+- Rank system
+- About screen
+- Cleaner exit when pressing Ctrl+C
+
+## Run
+
+```bash
+python3 'RE√(E)Rt.py'
+```
+
+## Warning
+
+This is still an alpha learning project. Expect rough edges, bugs, and weird text.
+
+## Notes
+
+Speedrun records are saved locally in `speedrun_records.json`. This file is ignored by Git.
