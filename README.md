@@ -2,8 +2,9 @@
 
 RE√(E)Rt is a small terminal game about binary inversion.
 
-The rule is simple:
 
+The rule is simple:
+	
 ```text
 0 -> 1
 1 -> 0
@@ -44,3 +45,6 @@ This is still an alpha learning project. Expect rough edges, bugs, and weird tex
 ## Notes
 
 Speedrun records are saved locally in `speedrun_records.json`. This file is ignored by Git.
+
+### shhhhh....
+Release will comming soon
